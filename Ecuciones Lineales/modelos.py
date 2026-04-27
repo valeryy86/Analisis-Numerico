@@ -1,0 +1,46 @@
+import numpy as np
+import sel as sel 
+import sympy as sp 
+
+x=sp.symbols('x')
+
+def Matrix(x_data):
+    n=len(x_data)
+    A=np.zeros([n,n])
+    A[0:n,0]=1.0
+
+    for j in range(1,n):
+        for i in range(0,n):
+            A[i,j]=A[i,j-1]*x_data[i]
+
+    return A
+
+
+def polinomial_simple(x_data, y_data):
+    A=Matrix(x_data)
+    coeficientes= sel.eliminacion_DD(A, y_data)
+    Polinomio= sum(coeficientes[i]*(x**i) for i in range (len(x_data)))
+    return Polinomio
+
+def lagrange(x_data, y_data):
+    sumPolinomio = 0
+    for i in range(len(x_data)):
+        Li = 1
+        for j in range(len(x_data)):
+            if j != i:
+                Li *= (x-x_data[j]) / (x_data[i]-x_data[j])
+        sumPolinomio += Li*y_data[i]
+    return sp.expand(sumPolinomio)
+
+
+def minimos_cuadrados(x_data, y_data):
+  n = len(x_data)
+  Sx = sum(x_data)
+  Sy = sum(y_data)
+  Syx= sum(x_data*y_data)
+  Sx2= sum(x_data**2)
+
+  m=(Sy*Sx-n*Syx)/(Sx**2-n*Sx2)
+  b=(Sx*Syx-Sy*Sx2)/(Sx**2-n*Sx2)
+  return m, b
+
